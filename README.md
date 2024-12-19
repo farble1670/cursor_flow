@@ -1,6 +1,10 @@
 cursorflow
 ===========
-Wrap a cursor and content changes in a Kotlin flow.
+Wrap a content resolver query, and content updates, in a Kotlin flow.
+
+This library assumes you are exposing your database from a [content provider](https://developer.android.com/guide/topics/providers/content-providers). Content providers add lifecycle, IPC, and well-defined concurrency on top of a regular SQLite database.
+
+Content providers seem to be infrequently used, in favor of modern database access architectures like [Room](https://developer.android.com/training/data-storage/room), hence, YMMV here. The main benefit, sharing data with other apps (processes), is a niche use case. 
 
 # Example usage
 
@@ -31,7 +35,7 @@ Observe:
 
 # Throttling
 
-Include the `throttleDuration` argument to throttle emissions and updates. See documentation for the extension function `Flow.throttle` (see: `FlowThrottle.kt) for semantics.
+Include the `throttleDuration` argument to throttle emissions and updates. See documentation for the extension function `Flow.throttle` (see: `FlowThrottle.kt) for semantics).
 
 ```
   val myFlow: CursorFlow<String> = CursorFlow.create(

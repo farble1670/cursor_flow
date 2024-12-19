@@ -1,3 +1,4 @@
 <resources>
   <string name="app_name">CursorFlow</string>
+  <string name="title_activity_cursor_flow_example">CursorFlowExampleActivity</string>
 </resources>
