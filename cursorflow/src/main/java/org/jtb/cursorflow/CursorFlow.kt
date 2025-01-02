@@ -1,7 +1,6 @@
 package org.jtb.cursorflow
 
 import android.content.ContentResolver
-import android.database.ContentObserver
 import android.database.Cursor
 import android.net.Uri
 import android.os.Handler
@@ -96,9 +95,11 @@ class CursorFlow<C> private constructor(
 
   init {
     coroutineScope.launch {
+      // Merge results from the observer we're listening with, and the manual refresh trigger
+      // and emit the results.
       merge(
-          contentFlow(),
-          refreshTrigger.map { queryContent() }
+          listen(),
+          refreshTrigger.map { query() }
       )
         // Even though we're using StateFlow, we need custom equality checks to
         // incorporate the passed content comparator
@@ -132,7 +133,7 @@ class CursorFlow<C> private constructor(
     refreshTrigger.tryEmit(Unit)
   }
 
-  private suspend fun queryContent() = withContext(bgDispatcher) {
+  private suspend fun query() = withContext(bgDispatcher) {
     try {
       contentResolver.query(
           uri,
@@ -147,7 +148,10 @@ class CursorFlow<C> private constructor(
     }
   }
 
-  private fun contentFlow() = callbackFlow {
+  /**
+   * Called 1x per object instance to start listening for changes to the [uri].
+   */
+  private fun listen() = callbackFlow {
     val observer = ThrottlingContentObserver(
         handler = Handler(Looper.getMainLooper()),
         coroutineScope = coroutineScope,
@@ -155,7 +159,7 @@ class CursorFlow<C> private constructor(
         throttleClock = throttleClock,
     ) {
       coroutineScope.launch(bgDispatcher) {
-        trySend(queryContent())
+        trySend(query())
       }
     }
 
@@ -167,7 +171,7 @@ class CursorFlow<C> private constructor(
 
     // Initial query
     coroutineScope.launch(bgDispatcher) {
-      trySend(queryContent())
+      trySend(query())
     }
 
     awaitClose {
@@ -220,6 +224,5 @@ class CursorFlow<C> private constructor(
   }
 }
 
-private fun <T> List<T>.contentEqualsBy(other: List<T>, compare: (T, T) -> Boolean): Boolean {
-  return size == other.size && zip(other).all { (a, b) -> compare(a, b) }
-}
+private inline fun <T> List<T>.contentEqualsBy(other: List<T>, compare: (T, T) -> Boolean) =
+    size == other.size && zip(other).all { (a, b) -> compare(a, b) }

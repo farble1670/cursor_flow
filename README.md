@@ -6,7 +6,7 @@ This library assumes you are exposing your database from a [content provider](ht
 
 Content providers seem to be infrequently used, in favor of modern database access architectures like [Room](https://developer.android.com/training/data-storage/room), hence, YMMV here. The main benefit, sharing data with other apps (processes), is a niche use case. 
 
-# Example usage
+## Example usage
 
 Create:
 ```
@@ -33,9 +33,9 @@ Observe:
   }
 ```
 
-# Throttling
+## Throttling
 
-Include the `throttleDuration` argument to throttle emissions and updates. See documentation for the extension function `Flow.throttle` (see: `FlowThrottle.kt) for semantics).
+Include the `throttleDuration` argument to throttle emissions and updates. See documentation for the extension function `Flow.throttle` (see: `FlowThrottle.kt`) for semantics).
 
 ```
   val myFlow: CursorFlow<String> = CursorFlow.create(
@@ -50,7 +50,7 @@ Include the `throttleDuration` argument to throttle emissions and updates. See d
     flow {
       emit(1)                 // t=0, immediate, emit 1
       delay(20.milliseconds)  // t=20
-      emit(2)                 // Throttled, not emitted
+      emit(2)                 // Throttled (not emitted)
       delay(20.milliseconds)  // t=40
       emit(3)                 // Throttled
       delay(20.milliseconds)  // t=60
@@ -59,10 +59,14 @@ Include the `throttleDuration` argument to throttle emissions and updates. See d
       emit(5)                 // Throttled
       delay(20.milliseconds)  // t=100, 5 is emitted
       delay(100.milliseconds) // t=200
-      emit(6)                 // Immediately emitted  
+      emit(6)                 // 6 is immediately emitted  
       delay(20.milliseconds)  // t=220
       emit(7)                 // Throttled
       ...
     }
       .throttle(100.milliseconds)
 ```      
+
+# Example
+
+Find the example app in the `app/` module in this project.  

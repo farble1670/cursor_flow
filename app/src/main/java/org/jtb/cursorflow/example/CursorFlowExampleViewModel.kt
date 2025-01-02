@@ -7,7 +7,6 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.StateFlow
 import org.jtb.cursorflow.ContentResult
 import org.jtb.cursorflow.CursorFlow
-import org.jtb.cursorflow.example.CursorFlowExampleProvider
 
 class CursorFlowExampleViewModel(application: Application) : AndroidViewModel(application) {
 

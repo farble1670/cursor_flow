@@ -33,12 +33,12 @@ class CursorFlowExampleProvider : ContentProvider() {
     private val adjectives = listOf(
         "Happy", "Sleepy", "Funny", "Clever", "Quick",
         "Lazy", "Busy", "Silly", "Wild", "Calm", "Angry",
-        "Passive", "Distracted"
+        "Passive", "Distracted", "Complex",
     )
     private val nouns = listOf(
         "Penguin", "Kangaroo", "Elephant", "Giraffe", "Lion",
-        "Tiger", "Panda", "Koala", "Monkey", "Bear", "Seamonkey",
-        "Salamander", "Beluga"
+        "Tiger", "Panda", "Koala", "Monkey", "Bear", "Prawn",
+        "Salamander", "Beluga", "Badger",
     )
   }
 
@@ -46,6 +46,7 @@ class CursorFlowExampleProvider : ContentProvider() {
   private var updateJob: Job? = null
 
   override fun onCreate(): Boolean {
+    // Run forever
     startPeriodicUpdates()
     return true
   }
@@ -55,7 +56,7 @@ class CursorFlowExampleProvider : ContentProvider() {
     updateJob = scope.launch {
       while (isActive) {
         context?.contentResolver?.notifyChange(CONTENT_URI, null)
-        delay(3.seconds) // 3 seconds delay
+        delay(3.seconds)
       }
     }
   }
@@ -66,7 +67,7 @@ class CursorFlowExampleProvider : ContentProvider() {
     selection: String?,
     selectionArgs: Array<out String>?,
     sortOrder: String?
-  ): Cursor? {
+  ): Cursor {
     return if (uriMatcher.match(uri) == ITEMS) {
       // Create a cursor with our columns
       val cursor = MatrixCursor(arrayOf(COLUMN_ID, COLUMN_NAME, COLUMN_VALUE))
@@ -76,7 +77,7 @@ class CursorFlowExampleProvider : ContentProvider() {
         cursor.addRow(
             arrayOf(
                 index,
-                generateRandomName(),
+                randomName,
                 Random.nextInt(1, 100),
             )
         )
@@ -89,13 +90,10 @@ class CursorFlowExampleProvider : ContentProvider() {
     }
   }
 
-  private fun generateRandomName(): String {
-    val adjective = adjectives.random()
-    val noun = nouns.random()
-    return "$adjective $noun"
-  }
+  private val randomName: String
+    get() = "${adjectives.random()} ${nouns.random()}"
 
-  override fun getType(uri: Uri): String = "vnd.android.cursor.dir/vnd.$AUTHORITY.$TABLE_ITEMS"
+  override fun getType(uri: Uri) = "vnd.android.cursor.dir/vnd.$AUTHORITY.$TABLE_ITEMS"
 
   override fun insert(uri: Uri, values: ContentValues?): Uri? {
     throw UnsupportedOperationException("Read-only ContentProvider")
